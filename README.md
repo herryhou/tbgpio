@@ -42,6 +42,11 @@ ffigen:
 flutter pub run ffgen
 ```
 
+## Build libtbgpio.so
+```shell
+cd example
+flutter run
+```
 
 
 
