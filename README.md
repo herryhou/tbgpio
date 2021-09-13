@@ -1,15 +1,49 @@
 # tb_gpio
 
-A new flutter plugin project.
+gpio FFI plugin for Tinker Board S
+Android only
 
-## Getting Started
+C Codes from https://github.com/TinkerBoard/gpio_lib_python
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/developing-packages/),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+# set up GPIO output channel, we set GPIO4 (Pin 7) to OUTPUT
+```dart
+import 'gpio.dart';
+
+tbgpio.setup() //open `/dev/gpiomem` & mmap
+tbgpio.setup_gpio(187, OUTPUT, PUD_UP);
+void output_gpio(int gpio, int value)
+int input_gpio(int gpio)
+cleanup()
+```
+
+
+## using ffgen
+
+add ffgen in pubspec.yaml
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2 
+  ffi: ^1.1.2
+  ffigen: ^4.0.0
+
+ffigen:
+  name: tb_gpio
+  description: TinkerBoard GPIO
+  output: './src/tb_gpio.dart'
+  headers:
+    entry-points:
+      - './src/c_gpio.h'
+```
+
+```shell
+flutter pub run ffgen
+```
+
+
+
+
+
 

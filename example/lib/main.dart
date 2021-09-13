@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-
-import 'package:flutter/services.dart';
 import 'package:tb_gpio/tb_gpio.dart';
+import 'gpio.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,24 +15,26 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
+  int _gpioValue = -999;
+  final int pin = 187;
 
   @override
   void initState() {
     super.initState();
     initPlatformState();
+    tbgpio.setup();
+    tbgpio.setup_gpio(pin, INPUT, PUD_UP);
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    String platformVersion;
+    int gpioValue;
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
-      platformVersion =
-          await TbGpio.platformVersion ?? 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+      gpioValue = tbgpio.input_gpio(pin);
+    } on Exception {
+      gpioValue = -99;
     }
 
     // If the widget was removed from the tree while the asynchronous platform
@@ -42,7 +43,7 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
 
     setState(() {
-      _platformVersion = platformVersion;
+      _gpioValue = gpioValue;
     });
   }
 
@@ -54,7 +55,7 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: Text('Running on: $_gpioValue\n'),
         ),
       ),
     );
