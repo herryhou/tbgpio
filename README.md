@@ -1,26 +1,68 @@
 # tb_gpio
 
-gpio FFI plugin for Tinker Board S
-Android only
+A Flutter Plugin for accessing the Tinker Board S GPIO pins.
 
-C Codes from https://github.com/TinkerBoard/gpio_lib_python
+Android support only.
 
+## Introduction
+`tb_gpio` binds c code from tinker's [official C code](https://github.com/TinkerBoard/gpio_lib_python/tree/master/source) with dart:ffi.
 
-# set up GPIO output channel, we set GPIO4 (Pin 7) to OUTPUT
-```dart
-import 'gpio.dart';
+## Plugin Installation
 
-tbgpio.setup() //open `/dev/gpiomem` & mmap
-tbgpio.setup_gpio(187, OUTPUT, PUD_UP);
-void output_gpio(int gpio, int value)
-int input_gpio(int gpio)
-cleanup()
+in `pubspec.yaml` add: 
+```yaml
+  tb_gpio:
+    git:
+      url: git://github.com/herryhou/tbgpio.git
+      ref: main
 ```
 
+## Usgae
 
-## using ffgen
+Create a helper file `gpio.dart`
 
-add ffgen in pubspec.yaml
+```dart
+import 'dart:ffi';
+import 'dart:io';
+import 'package:tb_gpio/tb_gpio.dart';
+
+late final DynamicLibrary nativeAddLib = Platform.isAndroid
+    ? DynamicLibrary.open("libtbgpio.so")
+    : DynamicLibrary.process();
+
+late final tbgpio = TBGpio(nativeAddLib);
+```
+
+in main.dart
+
+```dart
+import 'package:tb_gpio/tb_gpio.dart';
+import 'gpio.dart';
+
+  // set GPIO4 (Pin 7) to INPUT with pull-up
+  ...
+  final int pin = 187;
+  tbgpio.setup();
+  tbgpio.setup_gpio(pin, INPUT, PUD_UP);
+
+  int gpioValue = tbgpio.input_gpio(pin);
+
+  tbgpio.cleanup();
+  ...
+
+```
+
+> You might need to install NDK/CMake to compile C /C++ Codes to libtbgpio.so
+
+---
+
+## For Plugin developer
+
+
+### using ffgen to gen `tb_gpio.dart`
+
+add `ffgen` in `pubspec.yaml`
+
 ```yaml
 dependencies:
   flutter:
@@ -38,17 +80,13 @@ ffigen:
       - './src/c_gpio.h'
 ```
 
-```shell
+```bash
 flutter pub run ffgen
 ```
 
-## Build libtbgpio.so
+### Build `libtbgpio.so`
+
 ```shell
 cd example
 flutter run
 ```
-
-
-
-
-
